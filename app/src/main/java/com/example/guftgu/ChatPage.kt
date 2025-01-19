@@ -1,5 +1,8 @@
 package com.example.guftgu
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -129,18 +132,36 @@ fun MessageRow(messageModel: MessageModel){
         }
     }
 }
+
+
 @Composable
 fun MessageInput(onMessageSend: (String) -> Unit) {
+
     var message by remember { mutableStateOf("") }
+
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        imageUri = uri
+    }
+
     Row(
         modifier = Modifier.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ){
+        IconButton(onClick = {
+            launcher.launch("image/*")
+        }) {
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_perm_media_24),
+                contentDescription ="")
+        }
+
         OutlinedTextField(
             modifier = Modifier.weight(1f),
             value = message, onValueChange = {
             message = it
-        })
+        }, placeholder = { Text(text = "Type your message...") })
+
         IconButton(onClick = {
             if (message.isNotEmpty()){
                 onMessageSend(message)
